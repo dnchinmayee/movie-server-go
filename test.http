@@ -1,0 +1,33 @@
+@server = http://localhost:8080
+@movieId = 1
+
+
+### Get all movies
+GET {{server}}/movies
+
+
+### Get a movie by id
+GET {{server}}/movies/{{movieId}}
+
+### create a movie
+POST {{server}}/movies
+
+{
+    "title": "The Dark Knight",
+    "year": 2008,
+    "genre": "Action",
+    "director": "Christopher Nolan"
+}
+
+### update a movie
+PUT {{server}}/movies/{{movieId}}
+
+{
+    "title": "The Dark Knight",
+    "year": 2008,
+    "genre": "Action",
+    "director": "Christopher Nolan"
+}
+
+### delete a movie
+DELETE {{server}}/movies/{{movieId}}
