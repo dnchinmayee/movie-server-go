@@ -2,31 +2,24 @@ package controllers
 
 import (
 	"movie-server/models"
+	"movie-server/repositories"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 type MovieController struct {
-	// You can add services here
-	Movies []models.Movie
+	repository repositories.MovieRepository
 }
 
-func NewMovieController() *MovieController {
-	ctrl := &MovieController{}
-	// Mock data
-	movies := []models.Movie{
-		{ID: 1, Title: "Inception", Director: "Christopher Nolan"},
-		{ID: 2, Title: "The Matrix", Director: "Lana Wachowski, Lilly Wachowski"},
-	}
-	ctrl.Movies = movies
-
-	return ctrl
+func NewMovieController(repo repositories.MovieRepository) *MovieController {
+	return &MovieController{repository: repo}
 }
 
 func (ctrl *MovieController) GetMovies(c *gin.Context) {
-	c.JSON(http.StatusOK, ctrl.getMovies())
+	c.JSON(http.StatusOK, ctrl.repository.GetAll())
 }
 
 func (ctrl *MovieController) GetMovie(c *gin.Context) {
@@ -35,7 +28,7 @@ func (ctrl *MovieController) GetMovie(c *gin.Context) {
 	// Convert movieId to int
 	id, _ := strconv.Atoi(movieId)
 
-	movie := ctrl.getMovieById(id)
+	movie := ctrl.repository.GetById(id)
 
 	if movie.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
@@ -52,7 +45,7 @@ func (ctrl *MovieController) CreateMovie(c *gin.Context) {
 		return
 	}
 
-	movie = ctrl.createMovie(movie)
+	movie = ctrl.repository.Create(movie)
 	c.JSON(http.StatusOK, movie)
 }
 
@@ -67,7 +60,7 @@ func (ctrl *MovieController) UpdateMovie(c *gin.Context) {
 
 	// Convert movieId to int
 	movie.ID, _ = strconv.Atoi(movieId)
-	movie = ctrl.updateMovie(movie)
+	movie = ctrl.repository.Update(movie)
 	c.JSON(http.StatusOK, movie)
 }
 
@@ -77,7 +70,7 @@ func (ctrl *MovieController) DeleteMovie(c *gin.Context) {
 	// Convert movieId to int
 	id, _ := strconv.Atoi(movieId)
 
-	if ctrl.deleteMovie(id) {
+	if ctrl.repository.Delete(id) {
 		c.JSON(http.StatusOK, gin.H{"message": "Movie deleted"})
 		return
 	}
@@ -85,47 +78,16 @@ func (ctrl *MovieController) DeleteMovie(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
 }
 
-// handle CRUD operations for movies
-func (ctrl *MovieController) getMovies() []models.Movie {
-	return ctrl.Movies
-}
-
-func (ctrl *MovieController) createMovie(movie models.Movie) models.Movie {
-	// Mock response
-	movie.ID = ctrl.Movies[len(ctrl.Movies)-1].ID + 1
-	ctrl.Movies = append(ctrl.Movies, movie)
-
-	return movie
-}
-
-func (ctrl *MovieController) updateMovie(movie models.Movie) models.Movie {
-	for i, m := range ctrl.Movies {
-		if m.ID == movie.ID {
-			ctrl.Movies[i] = movie
-			return movie
-		}
+func (ctrl *MovieController) SearchMovie(c *gin.Context) {
+	title := c.Query("title")
+	m := ctrl.repository.SearchMoviesByTitle(title)
+	if len(m) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
+	} else {
+		c.JSON(http.StatusOK, m)
 	}
-
-	return models.Movie{}
 }
 
-func (ctrl *MovieController) deleteMovie(id int) bool {
-	for i, m := range ctrl.Movies {
-		if m.ID == id {
-			ctrl.Movies = append(ctrl.Movies[:i], ctrl.Movies[i+1:]...)
-			return true
-		}
-	}
+// SearchMoviesByTitle function seraches movies by title words
 
-	return false
-}
-
-func (ctrl *MovieController) getMovieById(id int) models.Movie {
-	for _, m := range ctrl.Movies {
-		if m.ID == id {
-			return m
-		}
-	}
-
-	return models.Movie{}
-}
+// }

@@ -1,6 +1,5 @@
 @server = http://localhost:8080
-@movieId = 1
-
+@movieId = 2
 
 ### Get all movies
 GET {{server}}/movies
@@ -13,10 +12,8 @@ GET {{server}}/movies/{{movieId}}
 POST {{server}}/movies
 
 {
-    "title": "The Dark Knight",
-    "year": 2008,
-    "genre": "Action",
-    "director": "Christopher Nolan"
+    "title": "Shrek",
+    "director": "Nolan"
 }
 
 ### update a movie
@@ -24,10 +21,14 @@ PUT {{server}}/movies/{{movieId}}
 
 {
     "title": "The Dark Knight",
-    "year": 2008,
-    "genre": "Action",
     "director": "Christopher Nolan"
 }
 
 ### delete a movie
 DELETE {{server}}/movies/{{movieId}}
+
+### search movies by title
+GET {{server}}/movies/search?title=tion
+
+
+### search MOvie by director
