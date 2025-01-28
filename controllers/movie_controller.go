@@ -1,11 +1,11 @@
 package controllers
 
 import (
+	"log"
 	"movie-server/models"
 	"movie-server/repositories"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,6 +39,7 @@ func (ctrl *MovieController) GetMovie(c *gin.Context) {
 }
 
 func (ctrl *MovieController) CreateMovie(c *gin.Context) {
+
 	var movie models.Movie
 	if err := c.ShouldBindJSON(&movie); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -88,6 +89,18 @@ func (ctrl *MovieController) SearchMovie(c *gin.Context) {
 	}
 }
 
-// SearchMoviesByTitle function seraches movies by title words
+func (ctrl *MovieController) SearchMovieDirector(c *gin.Context) {
+	log.Printf("Entering SearchMovieDirector")
+	title := c.Query("title")
+	director := c.Query("director")
 
-// }
+	log.Printf("title: %s, director: %s", title, director)
+
+	mv := ctrl.repository.SearchMoviesByTitleAndDirector(title, director)
+	log.Printf("mv: %+v", mv)
+	if len(mv) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
+	} else {
+		c.JSON(http.StatusOK, mv)
+	}
+}

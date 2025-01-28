@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"log"
 	"movie-server/models"
 	"strings"
 )
@@ -12,6 +13,7 @@ type MovieRepository interface {
 	Update(movie models.Movie) models.Movie
 	Delete(id int) bool
 	SearchMoviesByTitle(title string) []models.Movie
+	SearchMoviesByTitleAndDirector(title, director string) []models.Movie
 }
 
 type MovieMemoryRepository struct {
@@ -83,5 +85,57 @@ func (r *MovieMemoryRepository) SearchMoviesByTitle(title string) []models.Movie
 			}
 		} // SearchMoviesByTitle searches movies by title
 	}
+	return result
+}
+
+func (r *MovieMemoryRepository) SearchMoviesByTitleAndDirector(title, director string) []models.Movie {
+	log.Printf("Entering SearchMoviesByTitleAndDirector")
+	/*
+		if only title or director is available then search by that specific term
+		if both present, then search movies which have both title & director
+		if none are present then send all movies
+
+	*/
+
+	if title == "" && director == "" {
+		return r.movies
+	}
+
+	if title != "" && director == "" {
+		return r.SearchMoviesByTitle(title)
+		// return movies with matching title
+	}
+
+	if title == "" && director != "" {
+		// retrun movies with matching director
+		return r.SearchMovieDirector(director)
+	}
+
+	// return movies matching both title and director
+
+	return r.SearchMovieByTitleAndDirector(title, director)
+}
+
+func (r *MovieMemoryRepository) SearchMovieDirector(dir string) []models.Movie {
+	var result []models.Movie
+
+	for _, m := range r.movies {
+		if strings.Contains(m.Director, dir) {
+			result = append(result, m)
+		}
+	}
+
+	return result
+}
+
+func (r *MovieMemoryRepository) SearchMovieByTitleAndDirector(title, dir string) []models.Movie {
+	var result []models.Movie
+
+	for _, m := range r.movies {
+		if strings.Contains(m.Director, dir) && strings.Contains(m.Title, title) {
+			result = append(result, m)
+		}
+	}
+
 	return result
 }

@@ -31,4 +31,15 @@ DELETE {{server}}/movies/{{movieId}}
 GET {{server}}/movies/search?title=tion
 
 
-### search MOvie by director
+### search Movie by director name
+GET {{server}}/movies/search
+
+### only title
+GET {{server}}/movies/search?title=Inception
+
+
+### only directory
+GET {{server}}/movies/search?director=Christopher1
+
+###
+GET {{server}}/movies/search?director=Nolan&title=Inception
